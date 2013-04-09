@@ -1,0 +1,16 @@
+@media (min-width: 768px) and (max-width: 979px) {
+	.row-fluid .span3 {
+	  }
+}
+
+@media (max-width: 767px) {
+	.row-fluid .span3 {
+		width: 100%;
+		*width: 100%;
+	  }
+	 .row-fluid .span9 {
+		display: inline;
+		width: 50%;
+	 }
+	 
+}

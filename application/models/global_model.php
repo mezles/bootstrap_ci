@@ -1,0 +1,43 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Global_model extends CI_Model {
+	
+	/**
+	  * Class constructor
+	  */
+	public function __construct() {
+		parent::__construct();
+	}
+	
+	/**
+	 * Returns list of country
+	 *
+	 * @access public
+	 * @param none
+	 * @return object country list
+	 */
+	 public function get_country() {
+		$this->db->from( 'country_all' )
+					->order_by( 'short_name', 'ASC' );
+		$query = $this->db->get();
+		return $query->result();
+	 }
+	 
+	 /**
+	 * Returns country name
+	 *
+	 * @access public
+	 * @param string $ccode / iso2
+	 * @return string country name
+	 */
+	 public function get_country_name( $ccode ) {
+		$this->db->where( 'ccode', $ccode )
+					->from( 'countries' )
+					->order_by( 'country', 'ASC' );
+		$query = $this->db->get();
+		$row = $query->row();
+		return $row->country;
+	 }
+	
+}
+?>
