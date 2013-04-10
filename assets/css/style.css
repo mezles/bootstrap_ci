@@ -62,19 +62,19 @@ body {
 /************************************************************
  *               - MY DETAILS PAGE - 
  ************************************************************/
-#digicard-profile-details .form-horizontal .control-label {
+.modalform .form-horizontal .control-label {
 	width: 110px;
 }
 
-#digicard-profile-details .form-horizontal .controls {
+.modalform .form-horizontal .controls {
 	/*margin-left: 130px;*/
 }
 
-#digicard-profile-details .form-horizontal .controls .span3-edit {
+.modalform .form-horizontal .controls .span3-edit {
 	width: 289px;
 }
 
-#digicard-profile-details .form-horizontal .controls .span2-edit {
+.modalform .form-horizontal .controls .span2-edit {
 	width: 130px;
 }
 

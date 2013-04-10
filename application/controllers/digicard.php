@@ -201,6 +201,9 @@ class Digicard extends CI_Controller {
 				}
 			}
 			
+			$profile_photo = (isset($upload_data[0]['upload_data'])) ? $upload_data[0]['upload_data'] : '';
+			$company_logo = (isset($upload_data[1]['upload_data'])) ? $upload_data[1]['upload_data'] : '';
+			
 			if ( empty($data['error']) ) {
 				/* set form validation rule */
 				$this->form_validation->set_rules('title', 'Title', 'trim|xss_clean');
@@ -221,6 +224,7 @@ class Digicard extends CI_Controller {
 					$profile = array(
 						'user_id' => (int) $user['id'],
 						'profile_id' => $this->input->post('profile_id'),
+						'title' => $this->input->post('title'),
 						'email' => $this->input->post('email'),
 						'phone_mobile' => $this->input->post('phone_mobile'),
 						'phone_home' => $this->input->post('phone_home'),
@@ -232,19 +236,19 @@ class Digicard extends CI_Controller {
 						'social_link_fb' => $this->input->post('social_link_fb'),
 						'social_link_twitter' => $this->input->post('social_link_twitter'),
 						'social_link_linkedin' => $this->input->post('social_link_linkedin'),
-						'profile_photo' => json_encode($upload_data[0]['upload_data']),
-						'company_logo' => json_encode($upload_data[1]['upload_data']),
+						'profile_photo' => json_encode($profile_photo),
+						'company_logo' => json_encode($company_logo),
 					);
 					
 					$result = $this->user_model->save_user_profile_details( $profile );
 					
 					if ( $result ) {
 						$response['error'] = FALSE;
-						$response['msg'] = '<div class="alert alert-success"><button data-dismiss="alert" class="close" type="button">&times;</button>Sucessfully saved.</div>';			
+						$response['msg'] = '<div class="alert alert-success"><button data-dismiss="alert" class="close" type="button">&times;</button>Sucessfully saved. Reloading Page . . .</div>';	
 						
 					} else {
 						$response['error'] = TRUE;
-						$response['msg'] = '<div class="alert alert-error"><button data-dismiss="alert" class="close" type="button">&times;</button>Error encouter while saving...</div>';			
+						$response['msg'] = '<div class="alert alert-error"><button data-dismiss="alert" class="close" type="button">&times;</button>Error encouter while saving. Reloading Page . . .</div>';			
 					}
 				} else {
 					$response['error'] = TRUE;

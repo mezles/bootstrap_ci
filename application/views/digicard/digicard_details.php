@@ -45,7 +45,7 @@
 							<?php if ( !$this->user_model->has_existing_profile( $user['id'], $profile_name->id ) ) : ?>
 								<p><?php _e( 'No ' . $profile_name->title . ' Profile Details are completed yet.'); ?></p>
 								<!-- Button to trigger modal -->
-								<p><a class="text-info" href="#digicard-profile-details" data-toggle="modal"><?php _e( 'Complete one now.' ); ?></a></p>
+								<p><a class="text-info" href="#<?php echo slug_name( $profile_name->title ); ?>" data-toggle="modal"><?php _e( 'Complete one now.' ); ?></a></p>
 							<?php else: ?>
 								<div class="alert alert-info profile-detail-list"><?php
 									$lists = $this->user_model->get_profile_detail_list( $user['id'], $profile_name->id );
@@ -62,7 +62,7 @@
 							</div>
 						<?php endforeach; ?>
 						<div class="tab-pane" id="tab<?php echo (count($profile_names)+1); ?>">
-							<p>Howdy, I'm in Section <?php echo (count($profile_names)+1); ?></p>
+							<p><a class="text-info" href="#"><?php _e( 'Add New Profile' ); ?></a></p>
 						</div>
 					</div>
 				</div><!--/tabbable-->
@@ -73,9 +73,12 @@
         </div><!--/span-->
       </div><!--/row-->
 	 	
-	
+	<?php 
+	foreach( $profile_names as $key => $profile_name ) :
+		$details = $this->user_model->get_profile_detail_list( $user['id'], $profile_name->id ); ?>
+		
 	<!-- Modal Digicard profile details -->
-	<div id="digicard-profile-details" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div id="<?php echo slug_name( $profile_name->title ); ?>" class="modal hide fade modalform" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<?php echo form_open_multipart('digicard/save_digital_profile_details', array( 'class' => 'form-horizontal popup-profile' ) ); ?>
 		
 		<div class="modal-header">
@@ -245,7 +248,7 @@
 		
 		<div class="modal-footer">
 			<?php echo form_hidden( 'action', 'digicard/save_digital_profile_details' ); ?>
-			<?php echo form_hidden( 'profile_id', 1 ); ?>
+			<?php echo form_hidden( 'profile_id', $profile_name->id ); ?>
 			<button class="btn" data-dismiss="modal" aria-hidden="true"><?php _e( 'Close' ); ?></button>
 			<button type="submit" class="btn btn-primary"><?php _e( 'Save changes'); ?></button>
 		</div><!--/.modal-footer-->
@@ -254,5 +257,6 @@
 			
 		<?php echo form_close(); ?>
 	</div><!--/modal-->
+	<?php endforeach; ?>
 		 
 <?php echo $footer; ?>

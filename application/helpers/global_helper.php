@@ -100,21 +100,12 @@ function sidebar_nav_current_active() {
 }
 
 /**
- * This will return dropdown date from 01-31
- * 
+ * This will return the current controller and method of page
+ *
  * @access public
- * @param string $name
- * @return html
+ * @param none
+ * @return array
  */
-function custom_select( $name ) {
-	$select = "<select id='$name' class='$name' name='$name'>";
-	
-	for( $ctr = 0; $ctr <= 31; $ctr++ ):
-	endfor;
-	
-	$select .= "</select>";
-}
-
 function get_current_controller_method() {
 	/* get instance */
 	$CI = & get_instance();
@@ -125,4 +116,21 @@ function get_current_controller_method() {
 	$current_method = $CI->router->method;
 	
 	return array( 'controller' => $current_controller, 'method' => $current_method  );
+}
+
+/**
+ * This will return the slug of a string
+ *
+ * @access public
+ * @param string $string
+ * @return string $slug
+ */
+function slug_name( $string ) {
+    $url = $string;
+    $url = preg_replace('~[^\\pL0-9_]+~u', '-', $url); // substitutes anything but letters, numbers and '_' with separator 
+    $url = trim($url, "-");
+    $url = iconv("utf-8", "us-ascii//TRANSLIT", $url); // TRANSLIT does the whole job
+    $url = strtolower($url);
+    $url = preg_replace('~[^-a-z0-9_]+~', '', $url); // keep only letters, numbers, '_' and separator
+    return $url;
 }

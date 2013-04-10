@@ -59,7 +59,7 @@
 					$('input[name=gender]').val( $(this).val() );
 				});
 			},
-			
+						
 			/**
 			 * this is for form submission, access globally
 			 *
@@ -142,57 +142,73 @@
 			},
 			
 			popup_confirm: function( _link, _id ) {
-				var _return = false;
-				/* $('a.delete').click(function() {
-					var _id = $(this).data('id'); */
+				var 
+					_local = {
+						init: function() {
+							var self = this;
+							self.create_confirm();
+						},
+
+						create_confirm: function() {
+							$('body').prepend(
+								'<div id="deleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">' + 
+									'<div class="modal-header">' + 
+										'<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + 
+										'<h3 id="myModalLabel">Confirm Delete</h3>' +
+									'</div>' + 
+									'<div class="modal-body">' +
+										'<p>Are you sure to delete this item?</p>' + 
+									'</div>' + 
+									'<div class="modal-footer">' +
+										'<button class="btn" data-dismiss="modal" aria-hidden="true">No</button>' +
+										'<button class="btn btn-primary" id="yes">Yes</button>' + 
+									'</div>' +
+								'</div>'
+							);
+						},
+						
+						showModal: function() {
+							$('#deleteModal').on('shown', function() {
+								var _this = $(this);
+								$(this).find('button#yes').click(function() {
+									$.ajax({
+										url: APP.siteurl + _link,
+										type: 'POST',
+										dataType: 'json',
+										data: {
+											'csrf_token' : $('input[name=csrf_token]').val(),
+											'id' : parseInt(_id)
+										},
+										beforeSend: function() {
+											
+										},
+										success: function( response ) {
+											if( response.error === false ) {
+												_this.find('.modal-body').prepend(
+													'<div class="alert alert-success"><button data-dismiss="alert" class="close" type="button">&#215;</button>' + response.msg + ' Reloading page</div>'
+												);
+												setTimeout(function(){
+													  window.location.reload();
+												},2000);
+											} else {
+												_this.find('.modal-body').prepend('<div class="alert alert-error"><button data-dismiss="alert" class="close" type="button">&#215;</button>' + response.msg + '</div>');
+											}
+										},
+										error: function() {
+											
+										}
+									});
+								});
+							}).on('hidden', function() {
+								$(this).remove();
+							}).modal('show');
+							
+						}
+					};
 					
-					$('body').prepend(
-						'<div id="deleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">' + 
-							'<div class="modal-header">' + 
-								'<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + 
-								'<h3 id="myModalLabel">Confirm Delete</h3>' +
-							'</div>' + 
-							'<div class="modal-body">' +
-								'<p>Are you sure to delete this item?</p>' + 
-							'</div>' + 
-							'<div class="modal-footer">' +
-								'<button class="btn" data-dismiss="modal" aria-hidden="true">No</button>' +
-								'<button class="btn btn-primary" id="yes">Yes</button>' + 
-							'</div>' +
-						'</div>'
-					);
+				_local.init();
+				_local.showModal();
 					
-					$('#deleteModal').on('shown', function() {
-						$(this).find('button#yes').click(function() {
-							$.ajax({
-								url: APP.siteurl + _link,
-								type: 'POST',
-								dataType: 'json',
-								data: {
-									'csrf_token' : $('input[name=csrf_token]').val(),
-									'id' : parseInt(_id)
-								},
-								beforeSend: function() {
-									
-								},
-								success: function( response ) {
-									if( response.error === false ) {
-										_return = true;
-									}
-								},
-								error: function() {
-									_return = false;
-								}
-							});
-						});
-					}).on('hidden', function() {
-						$(this).remove();
-					}).modal('show');					
-					
-				/* }); */
-				
-				return _return;
-				
 			}
 			
 		 }
@@ -288,9 +304,16 @@
 					},
 					submitHandler: function(form) {
 						$(form).ajaxSubmit({
-							target: '.pop-message'
+							target: '.pop-message',
+							success: function( responseText, statusText, xhr, $form) {
+								if ( statusText === 'success' ) {
+									setTimeout(function(){
+										  window.location.reload();
+									},2000);
+								}
+							}
 						});
-						return false;
+						// return false;
 					}
 				});
 			},
@@ -298,10 +321,9 @@
 			delete_profile_details: function() {
 				$('a.delete').click(function() {
 					var 
-						_id = $(this).data('id'),
-						test = QIKY.global.popup_confirm( 'digicard/delete_user_profile_detail', _id );
-					
-					console.log(test);
+						_id = $(this).data('id');
+					QIKY.global.popup_confirm( 'digicard/delete_user_profile_detail', _id );
+				
 				});
 				
 			}
