@@ -134,3 +134,29 @@ function slug_name( $string ) {
     $url = preg_replace('~[^-a-z0-9_]+~', '', $url); // keep only letters, numbers, '_' and separator
     return $url;
 }
+
+/**
+ * This will return an alert message format in bootstrap
+ * http://twitter.github.io/bootstrap/javascript.html#alerts
+ *
+ * @access public
+ * @param $content - alert message content
+ * @param $class - alert message class, (accepts string, array, or null)
+ * @return html/string
+ */
+function _bootstrap_alert( $content, $class = null ) {
+	$prep_class = '';
+	
+	if ( is_null( $class ) ) {
+		$prep_class = '';
+			
+	} else if ( is_array( $class ) ) {
+		$prep_class = implode( ' ', $class );
+		
+	} else {
+		$prep_class = $class;
+	}
+	
+	$html = '<div class="alert ' . $prep_class . '"><button data-dismiss="alert" class="close" type="button">&times;</button>' . $content . '</div>';
+	return $html;
+}

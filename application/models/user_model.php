@@ -1,13 +1,20 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class User_model extends CI_Model {
-
+	var $user_id;
+	
 	/**
 	  * Class constructor
 	  */
 	public function __construct() {
 		parent::__construct();
 		$this->load->library('phpass');
+		
+		if ($this->is_user_logged_in()) {
+			$user = $this->session->userdata('user_data');
+			$this->user_id = $user['id'];
+		}
+		
 	}
 	
 	/**
@@ -18,7 +25,7 @@ class User_model extends CI_Model {
 	 */
 	public function is_user_logged_in() {
 		$user = $this->session->userdata('user_data');
-        return isset($user);
+        return (isset($user) && !empty($user)) ? true: false;
 	}
 	
 	
@@ -295,7 +302,7 @@ class User_model extends CI_Model {
 								 ->where( 'profile_id', $profile_id )
 								 ->get( 'user_profile_details' );
 								 
-		return $query->result();
+		return $query->row();
 	}
 	
 	/**
@@ -311,4 +318,52 @@ class User_model extends CI_Model {
 		// Check to see if the query actually performed correctly
 		return ($this->db->affected_rows() > 0) ? true : false;
 	}
+	
+	/**
+	 * adds new profile
+	 *
+	 * @access public
+	 * @param array $data
+	 * @return boolean
+	 */
+	public function add_new_profile( $data ) {
+		$query = $this->db->insert( 'profile', $data );
+		
+		// Check to see if the query actually performed correctly
+		return ($this->db->affected_rows() > 0) ? true : false;
+	}
+	
+	/**
+	 * delete profile
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return boolean
+	 */
+	 public function delete_profile( $id ) {
+		$query = $this->db->where( 'id', (int) $id )
+								 ->delete( 'profile' );
+		// Check to see if the query actually performed correctly
+		return ($this->db->affected_rows() > 0) ? true : false;
+	 }
+	 
+	 /**
+	  * get profile photo
+	  *
+	  * @access public
+	  * @param int $profile_id
+	  * @return string
+	  */
+	 public function get_profile_photo( $profile_id ) {
+		$user_id = $this->user_id;
+		$details = $this->get_profile_detail_list( $user_id, $profile_id );
+		$photo = '';
+		
+		if ($details) {
+			$photo = json_decode($details->profile_photo);
+			$photo = ($photo) ? base_url( '/assets/uploads/img_users/' . $photo->file_name ) : '';
+		}
+		
+		return $photo;
+	 }
 }

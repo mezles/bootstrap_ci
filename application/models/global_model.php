@@ -38,6 +38,22 @@ class Global_model extends CI_Model {
 		$row = $query->row();
 		return $row->country;
 	 }
+	 
+	 /**
+	  * Returns country calling code
+	  *
+	  * @access public
+	  * @param int id
+	  * @return string
+	  */
+	 public function get_calling_code( $id ) {
+		$this->db->where( 'country_id', (int) $id )
+					->from( 'country_all' );
+		$query = $this->db->get();
+		$row = $query->row();
+		
+		return ($row && !empty($row->calling_code)) ? "($row->calling_code) " : '';
+	 }
 	
 }
 ?>

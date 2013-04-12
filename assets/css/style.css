@@ -25,7 +25,7 @@ body {
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
     -moz-border-top-colors: none;
-    border-color: -moz-use-text-color -moz-use-text-color #E5E5E5;
+    border-color: #E5E5E5;
     border-image: none;
     border-style: none none solid;
     border-width: 0 0 1px;
@@ -38,13 +38,25 @@ body {
 	display: block;
 	font-size: 21px;
 	line-height: 40px;
+	position: relative;
 }
-
+.hero-unit .tophead span.title .icon-question-sign {
+	margin-left: 5px;
+	font-size: 15px;
+	position: absolute;
+}
 .hero-unit .tophead .img-holder img {
 	border-radius: 5px;
 	margin-right: 15px;
+	max-width: 109px;
+	min-height: 96px;
 }
-
+.hero-unit .tophead .img-holder .icon-spinner {
+	display: none;
+}
+.hero-unit .tophead .img-holder .img-holder-load {
+	padding: 43.5px;
+}
 .hero-unit .tophead .img-holder p {
 	margin: 0;
 }
@@ -59,6 +71,25 @@ body {
 .modal form {
 	margin: 0;
 }
+.modal .modal-footer .alert {
+	margin-bottom: 0;
+	text-align: left;
+	max-width: 280px;
+}
+
+/************************************************************
+ *				  - ICON Style -
+ ************************************************************/
+.icon-twitter-sign:hover {
+	color: #00BBF5;
+}
+.icon-facebook-sign:hover {
+	color: #006DCC;
+}
+.icon-linkedin-sign:hover {
+	color: #3893C4;
+}
+
 /************************************************************
  *               - MY DETAILS PAGE - 
  ************************************************************/
@@ -76,6 +107,61 @@ body {
 
 .modalform .form-horizontal .controls .span2-edit {
 	width: 130px;
+}
+.nav-tabs li {
+	position: relative;
+}
+.nav-tabs .icon-remove {
+	font-size: 10px;
+	position: absolute;
+	right: 4px;
+	top: 5px;
+	color: red;
+	display: none;
+}
+.nav-tabs .icon-remove:hover {
+	cursor: pointer;
+}
+.profile-detail {
+	border-color: #DDDDDD;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 12px;
+    padding: 5px;
+}
+.profile-detail:hover {
+	background-color: #FFFFFF;
+}
+.profile-detail .delete-wrapper {
+	line-height: 14px;
+	display: none;
+}
+.profile-detail .delete-wrapper a:hover {
+	color: #FF0000;
+	cursor: pointer;
+}
+.profile-detail:hover .delete-wrapper {
+	display: block;
+}
+.profile-detail .profile-detail-header img {
+	border-radius: 5px;
+	margin-right: 10px;
+	width: 70px;
+}
+.profile-detail .profile-detail-header ul {
+	font-weight: bold;
+}
+.profile-detail .profile-detail-header ul li {
+	line-height: 20px;
+}
+.profile-detail .profile-detail-header [class^="icon-"] {
+	cursor: pointer;
+}
+.profile-detail .profile-detail-header a {
+	color: inherit;
+}
+.profile-detail .profile-detail-header a:hover {
+	text-decoration: none;
 }
 
 /************************************************************

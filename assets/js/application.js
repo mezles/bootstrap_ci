@@ -23,6 +23,9 @@
 				/* init radio buttons */
 				QIKY.global.radiobutton();
 				
+				/* init fancybox */
+				QIKY.global.fancybox();
+				
 				/* init submit forms*/
 				QIKY.global.submitform();
 				
@@ -59,6 +62,11 @@
 					$('input[name=gender]').val( $(this).val() );
 				});
 			},
+			
+			/* loads fancybox */
+			fancybox: function() {
+				$(".fancybox").fancybox();
+			},
 						
 			/**
 			 * this is for form submission, access globally
@@ -66,16 +74,16 @@
 			 * please see login or register page for html markup for post redirection
 			 * and personal id page for no redirect
 			 */
-			submitform: function() {
-				/* adds pop over to form */
-				$('form input, form select').hover(function() {
-					$(this).popover('show');
-				}).mouseout(function() {
-					$(this).popover('hide');
-				});
-				
+			submitform: function() {				
 				/* js form validation */
 				if ( $('form').hasClass( 'global' ) ) {
+					/* adds pop over to form */
+					$('form input, form select').hover(function() {
+						$(this).popover('show');
+					}).mouseout(function() {
+						$(this).popover('hide');
+					});
+				
 					$('form').validate({
 						rules: { /* add rules here */
 							email: { required: true, email: true},
@@ -285,12 +293,71 @@
 				
 				self.save_popup_digital_prof_details();
 				self.delete_profile_details();
+				self.add_new_profile();
+				self.delete_profile();
+				self.change_profile_pic();
 			},
 			
 			save_popup_digital_prof_details: function() {
-				$('.popup-profile').validate({
+			
+				$('a.popup-edit').click(function() {
+				
+				});
+				
+				$('a.add_prof_detail, a.popup-edit').click(function() {
+					var _prof_detail_id = $(this).data('id');
+										
+					$('#popup-profile-'+ _prof_detail_id).validate({
+						rules: { /* add rules here */
+							email: { required: false, email: true}
+						},
+						errorClass: "help-inline",
+						errorElement: "span",
+						highlight:function(element, errorClass, validClass) {
+							$(element).parents('.control-group').removeClass('success');
+							$(element).parents('.control-group').addClass('error');
+						},
+						unhighlight: function(element, errorClass, validClass) {
+							$(element).parents('.control-group').removeClass('error');
+							$(element).parents('.control-group').addClass('success');
+						},
+						submitHandler: function(form) {
+							$(form).ajaxSubmit({
+								target: '.pop-message',
+								success: function( responseText, statusText, xhr, $form) {
+									if ( statusText === 'success' ) {
+										setTimeout(function(){
+											  window.location.reload();
+										},2000);
+									}
+								}
+							});
+							// return false;
+						}
+					});
+					
+				});
+				
+				$('.modal-profile-detail').on('hidden', function() {
+					window.location.reload();
+				});
+				
+			},
+			
+			delete_profile_details: function() {
+				$('a.popup-delete').click(function() {
+					var 
+						_id = $(this).data('id');
+					QIKY.global.popup_confirm( 'digicard/delete_user_profile_detail', _id );
+				
+				});
+				
+			},
+			
+			add_new_profile: function() {
+				$('.popup-add-new-profile').validate({
 					rules: { /* add rules here */
-						email: { required: false, email: true}
+						profile_name: { required: true }
 					},
 					errorClass: "help-inline",
 					errorElement: "span",
@@ -304,32 +371,111 @@
 					},
 					submitHandler: function(form) {
 						$(form).ajaxSubmit({
-							target: '.pop-message',
+							beforeSubmit: function() {
+								$(form).find('.alert').remove();
+							},
 							success: function( responseText, statusText, xhr, $form) {
 								if ( statusText === 'success' ) {
-									setTimeout(function(){
-										  window.location.reload();
-									},2000);
+									var _response = $.parseJSON(responseText);
+									
+									$($form).find('.modal-footer').prepend(_response.msg);
+									if ( !_response.error ) {
+										setTimeout(function(){
+											window.location.reload();
+										},2000);
+									}
+									
+								} else {
+									$($form).find('.pop-message').html('There was an error in posting your request. Please reload page and try again.');
 								}
 							}
 						});
 						// return false;
 					}
 				});
+				
+				$('#add-new-profile').on('show', function() {
+					$(this).find('.control-group').removeClass('success error');
+					$(this).find('.help-inline').remove();
+					$(this).find('input[name=profile_name]').val('');
+					$(this).find('.alert').remove();
+				});
 			},
 			
-			delete_profile_details: function() {
-				$('a.delete').click(function() {
-					var 
-						_id = $(this).data('id');
-					QIKY.global.popup_confirm( 'digicard/delete_user_profile_detail', _id );
-				
+			delete_profile: function() {
+				$('a[data-toggle="tab"]').on('shown', function (e) {
+					e.target // activated tab
+					e.relatedTarget // previous tab
+					$(e.relatedTarget).find('.icon-remove').remove();
+
+					if( 0 == parseInt( $(e.target).data('built-in') ) ) {
+						$(e.target).append('<i class="icon-remove popup-delete" title="Remove Profile"></i>');
+						// $('.helptip').tooltip();
+					}
+					
+					$(e.target).find('.popup-delete').click(function() {
+						var 
+							_id = parseInt($(e.target).data('id'));
+						QIKY.global.popup_confirm( 'digicard/delete_profile', _id );
+					});
 				});
 				
-			}
+			},
 			
+			change_profile_pic: function() {
+				/* get personal photo on reload */
+				_ajax_change_photo( 1 );
+				
+				/* when chaning tabs */
+				$('a[data-toggle="tab"]').on('shown', function (e) {
+					e.target // activated tab
+					e.relatedTarget // previous tab
+					
+					_ajax_change_photo( parseInt($(e.target).data('id')) );
+					
+				});
+				
+				function _ajax_change_photo( _id ) {
+					$.ajax({
+						url: APP.ajaxurl + 'get_profile_pic',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							'csrf_token' : $('input[name=csrf_token]').val(),
+							'id' : _id
+						},
+						beforeSend: function() {
+							$('.img-holder img').hide();
+							$('.img-holder div').addClass('img-holder-load');
+							$('.img-holder .photo-spin').css('display', 'block');
+						},
+						success: function( response ) {
+							
+							if( response.error === false ) {
+								$('.img-holder img').attr('src', response.image);
+								$('.img-holder .fancybox').attr('href', response.image);
+							} else {
+								$('.img-holder img').attr('src', APP.siteurl+'assets/img/no-image-blue.png');
+								$('.img-holder .fancybox').attr('href', APP.siteurl+'assets/img/no-image-blue.png');
+							}
+							
+							setTimeout(function(){
+								$('.img-holder img').fadeIn();
+								$('.img-holder div').removeClass('img-holder-load');
+								$('.img-holder .photo-spin').css('display', 'none');
+							},100);
+							
+						},
+						error: function() {
+							
+						}
+					});
+				}
+			 }
 			
 		 }
+		 
+		 
 		 
 		 
 		 /**

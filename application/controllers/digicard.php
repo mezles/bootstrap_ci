@@ -64,13 +64,6 @@ class Digicard extends CI_Controller {
 		$data[ 'sidebar' ] 		= $this->load->view( 'include/sidebar/sidebar', $data, TRUE );
 		$data[ 'footer' ] 			= $this->load->view( 'include/footer/footer', $data, TRUE );
 		
-// $user_logs = $this->user_model->get_user_logs();
-// $user_logs = unserialize($user_logs[0]->user_data);
-// print_r('<pre>');
-// print_r($user_logs);
-// print_r('</pre>');
-// $decoded_ci_session = @unserialize(@stripslashes($_COOKIE['ci_session']));
-// var_dump($decoded_ci_session);
 		$data['login_count'] 		= $this->user_model->get_login_count( $user['id']);
 
 		$this->load->view('/digicard/digicard_personal_id', $data);
@@ -105,6 +98,18 @@ class Digicard extends CI_Controller {
 		else
 			$this->load->view('/digicard/digicard_no_details', $data);
 	}
+	
+	/**
+	 * Class new_digicard method, handles new digicard page
+	 *
+	 * @access public
+	 * @param none
+	 * @return html
+	 */
+	public function new_digicard() {
+		
+	}
+	
 	
 	/**
 	 * Class save_personal_id method, handles saving of user personal information
@@ -227,7 +232,9 @@ class Digicard extends CI_Controller {
 						'title' => $this->input->post('title'),
 						'email' => $this->input->post('email'),
 						'phone_mobile' => $this->input->post('phone_mobile'),
+						'phone_mobile_code' => (int) $this->input->post('phone_mobile_code'),
 						'phone_home' => $this->input->post('phone_home'),
+						'phone_home_code' => (int) $this->input->post('phone_home_code'),
 						'skype' => $this->input->post('skype'),
 						'personal_url' => $this->input->post('personal_url'),
 						'job_title' => $this->input->post('job_title'),
@@ -235,10 +242,13 @@ class Digicard extends CI_Controller {
 						'address' => $this->input->post('address'),
 						'social_link_fb' => $this->input->post('social_link_fb'),
 						'social_link_twitter' => $this->input->post('social_link_twitter'),
-						'social_link_linkedin' => $this->input->post('social_link_linkedin'),
-						'profile_photo' => json_encode($profile_photo),
-						'company_logo' => json_encode($company_logo),
+						'social_link_linkedin' => $this->input->post('social_link_linkedin')
 					);
+					
+					if ($_FILES) {
+						$profile['profile_photo'] = json_encode($profile_photo);
+						$profile['company_logo'] = json_encode($company_logo);
+					}
 					
 					$result = $this->user_model->save_user_profile_details( $profile );
 					
@@ -248,7 +258,7 @@ class Digicard extends CI_Controller {
 						
 					} else {
 						$response['error'] = TRUE;
-						$response['msg'] = '<div class="alert alert-error"><button data-dismiss="alert" class="close" type="button">&times;</button>Error encouter while saving. Reloading Page . . .</div>';			
+						$response['msg'] = '<div class="alert alert-error"><button data-dismiss="alert" class="close" type="button">&times;</button>No changes done. Reloading Page . . .</div>';			
 					}
 				} else {
 					$response['error'] = TRUE;
@@ -309,7 +319,114 @@ class Digicard extends CI_Controller {
 		}
 	}
 	
+	/**
+	 * addds new profile name
+	 *
+	 * @access public
+	 * @param none
+	 * @return json_encode $response
+	 */
+	public function add_new_profile() {
+		/* show 404 for direct access */
+		if (! IS_AJAX) {
+			show_404();
+		
+		} else {
+			/* retrieve user data from session */
+			$user = $this->session->userdata('user_data');
+			
+			/* set default response */
+			$response = array('error' => true, 'msg' => _bootstrap_alert( 'Error validating your request!', array( 'alert-error', 'pull-left') ) );
+			
+			/* verify that user is actually login */
+			if ( is_logged_in() ) {
+			
+				/* check for post */
+				if ( $this->input->post() ) {
+					
+					/* form validation */
+					$this->form_validation->set_rules('profile_name', 'Profile Name', 'required|trim|xss_clean|alpha_dash_space');
+					
+					if ($this->form_validation->run() != FALSE) {
+						$data = array(
+							'user_id' => $user['id'],
+							'title' => $this->input->post('profile_name', TRUE),
+							'built_in' => 0
+						);
+						
+						$is_added = $this->user_model->add_new_profile( $data );
+						
+						if ( $is_added ) {
+							$response['error'] = false;
+							$response['msg'] = _bootstrap_alert('Profile successfully added!', array('alert-success', 'pull-left'));
+							
+						} else {
+							$response['msg'] = _bootstrap_alert( 'Error in saving to database', array('alert-error', 'pull-left') );
+						}
+						
+					} else {
+						$response['msg'] = _bootstrap_alert(validation_errors(), array('alert-error', 'pull-left'));
+					}
+					
+					
+				} else {
+					$response['msg'] = _bootstrap_alert( 'No data post.', array('alert-error', 'pull-left') );
+				}
+			} else {
+				$response['msg'] = _bootstrap_alert( 'Restricted Page.', array('alert-error', 'pull-left') );
+			}
+			
+			echo json_encode( $response );
+			die();
+		}
+	}
 	
+	/**
+	 * deletes profile by id
+	 *
+	 * @access public
+	 * @param none
+	 * @return array $response
+	 */
+	public function delete_profile() {
+		/* show 404 for direct access */
+		if (! IS_AJAX) {
+			show_404();
+		
+		} else {
+			/* retrieve user data from session */
+			$user = $this->session->userdata('user_data');
+			
+			/* set default response */
+			$response = array('error' => true, 'msg' => 'Error validating your request!');
+			
+			/* verify that user is actually login */
+			if ( is_logged_in() ) {
+			
+				/* check for post */
+				if ( $this->input->post() ) {			
+				
+					$is_deleted = $this->user_model->delete_profile( $this->input->post( 'id' ) );
+					
+					if ( $is_deleted ) {
+						$response['error'] = false;
+						$response['msg'] = 'Profile successfully deleted!';
+						
+					} else {
+						$response['msg'] = 'Error in deleting selected profile.';
+					}
+						
+				} else {
+					$response['msg'] = 'No data post.';
+				}
+			} else {
+				$response['msg'] = 'Restricted Page.';
+			}
+			
+			echo json_encode( $response );
+			die();
+		}
+	}
 }
 
 /* End of file digicard.php */

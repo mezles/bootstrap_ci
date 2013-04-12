@@ -40,7 +40,7 @@
 		var 
 			APP = {
 				"siteurl"			:	"<?php echo site_url('/'); ?>",
-				"ajaxurl"			:	"<?php echo site_url('/ajax'); ?>",
+				"ajaxurl"			:	"<?php echo site_url('/ajax') . '/'; ?>",
 				"controller"		:	"<?php echo $page['controller']; ?>",
 				"method"		:	"<?php echo $page['method']; ?>"
 			},

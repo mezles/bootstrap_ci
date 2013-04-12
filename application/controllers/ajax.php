@@ -80,6 +80,42 @@ class Ajax extends CI_Controller {
 		}
 	}
 	
+	/**
+	 * get profile picture base on profile id
+	 *
+	 * @access public
+	 * @param int $profile_id
+	 * @return string
+	 */
+	public function get_profile_pic($profile_id) {
+		/* show 404 for direct access */
+		if (! IS_AJAX) {
+			show_404();
+			
+		} else {
+			/* retrieve user data from session */
+			$user = $this->session->userdata('user_data');
+			$response = array( 'error' => TRUE, 'image' => '' );
+			
+			if ( $user && (int) $user > 0 ) {
+				$this->load->model('user_model');
+				
+				if ( $this->input->post() ) {
+					$pic = $this->user_model->get_profile_photo( $this->input->post('id'));
+					
+					if ( !empty($pic) || trim($pic) != '' ) {
+						$response = array( 'error' => FALSE, 'image' => $pic );
+					}
+				}
+				
+				echo json_encode( $response );
+				
+			} else {
+				echo 0;
+			}
+		}
+	}
+	
 }
 
 /* End of file welcome.php */
